@@ -1,0 +1,10 @@
+{
+  "name": "PixelGimb",
+  "short_name": "PixelGimb",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#050604",
+  "theme_color": "#1C2C16",
+  "description": "Retro CRT pixel music player.",
+  "orientation": "portrait-primary"
+}
