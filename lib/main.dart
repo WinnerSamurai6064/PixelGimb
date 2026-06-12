@@ -31,9 +31,9 @@ class PixelGimbApp extends StatelessWidget {
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
           activeTrackColor: Colors.white,
-          inactiveTrackColor: Colors.white.withOpacity(0.26),
+          inactiveTrackColor: Colors.white.withValues(alpha: 0.26),
           thumbColor: Colors.white,
-          overlayColor: Colors.white.withOpacity(0.10),
+          overlayColor: Colors.white.withValues(alpha: 0.10),
         ),
       ),
       home: const PlayerScreen(),
@@ -227,7 +227,7 @@ class _OfficialHeader extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.62),
+                  color: Colors.white.withValues(alpha: 0.62),
                   fontSize: width < 390 ? 16 : 20,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.2,
@@ -295,7 +295,7 @@ class _SeekBar extends StatelessWidget {
               Text(
                 _formatDuration(Duration(seconds: (value * 161).round())),
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.76),
+                  color: Colors.white.withValues(alpha: 0.76),
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),
@@ -304,7 +304,7 @@ class _SeekBar extends StatelessWidget {
               Text(
                 '-${_formatDuration(Duration(seconds: ((1 - value) * 161).round()))}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.76),
+                  color: Colors.white.withValues(alpha: 0.76),
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),
@@ -396,7 +396,7 @@ class _PlayerBackground extends StatelessWidget {
 class _SubtleTexturePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withOpacity(0.014);
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.014);
     const step = 16.0;
     for (double y = 0; y < size.height; y += step) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
