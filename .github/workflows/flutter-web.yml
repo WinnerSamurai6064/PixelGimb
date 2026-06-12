@@ -28,12 +28,22 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
 
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Analyze project
+        run: flutter analyze
+
       - name: Build Flutter web
-        run: flutter build web --release --base-href /PixelGimb/
+        run: >
+          flutter build web --release
+          --base-href /PixelGimb/
+          --dart-define=SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
