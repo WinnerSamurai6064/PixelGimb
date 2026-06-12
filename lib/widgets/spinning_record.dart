@@ -32,7 +32,7 @@ class _SpinningRecordState extends State<SpinningRecord>
     super.initState();
     _spinController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 12),
+      duration: const Duration(seconds: 13),
     );
 
     if (widget.isPlaying) {
@@ -60,78 +60,92 @@ class _SpinningRecordState extends State<SpinningRecord>
   @override
   Widget build(BuildContext context) {
     final recordSize = widget.size;
-    final albumSize = recordSize * 0.56;
+    final albumSize = recordSize * 0.54;
+    final holeSize = recordSize * 0.08;
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 520),
-      transitionBuilder: (child, animation) {
-        final rotate = Tween<double>(begin: math.pi / 2, end: 0).animate(
-          CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-        );
+    return SizedBox(
+      width: recordSize,
+      height: recordSize,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 460),
+        transitionBuilder: (child, animation) {
+          final rotate = Tween<double>(begin: math.pi / 2.4, end: 0).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+          );
 
-        return AnimatedBuilder(
-          animation: rotate,
-          child: child,
-          builder: (context, child) {
-            return Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(rotate.value),
-              child: child,
-            );
-          },
-        );
-      },
-      child: AnimatedBuilder(
-        key: ValueKey(widget.albumArtUrl),
-        animation: _spinController,
-        builder: (context, _) {
-          return Transform.rotate(
-            angle: _spinController.value * math.pi * 2,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: recordSize * 0.94,
-                  height: recordSize * 0.94,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.55),
-                        blurRadius: 28,
-                        spreadRadius: 8,
-                        offset: const Offset(0, 14),
-                      ),
-                    ],
-                  ),
-                ),
-                ClipOval(
-                  child: Image.network(
-                    widget.albumArtUrl,
-                    width: albumSize,
-                    height: albumSize,
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.none,
-                    errorBuilder: (_, __, ___) => Container(
-                      width: albumSize,
-                      height: albumSize,
-                      color: const Color(0xFF6E4A22),
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.music_note, color: Color(0xFFFFD37A)),
-                    ),
-                  ),
-                ),
-                PixelAssetImage(
-                  PixelAssets.record(widget.isTransitioning ? 'spin01' : 'label'),
-                  width: recordSize,
-                  height: recordSize,
-                ),
-              ],
-            ),
+          return AnimatedBuilder(
+            animation: rotate,
+            child: child,
+            builder: (context, child) {
+              return Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.001)
+                  ..rotateY(rotate.value),
+                child: child,
+              );
+            },
           );
         },
+        child: AnimatedBuilder(
+          key: ValueKey(widget.albumArtUrl),
+          animation: _spinController,
+          builder: (context, _) {
+            return Transform.rotate(
+              angle: _spinController.value * math.pi * 2,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: recordSize * 0.90,
+                    height: recordSize * 0.90,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.56),
+                          blurRadius: 24,
+                          spreadRadius: 3,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ClipOval(
+                    child: Image.network(
+                      widget.albumArtUrl,
+                      width: albumSize,
+                      height: albumSize,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.none,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: albumSize,
+                        height: albumSize,
+                        color: const Color(0xFF6E4A22),
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.music_note, color: Color(0xFFFFD37A)),
+                      ),
+                    ),
+                  ),
+                  PixelAssetImage(
+                    PixelAssets.record(widget.isTransitioning ? 'spin01' : 'empty'),
+                    width: recordSize,
+                    height: recordSize,
+                  ),
+                  Container(
+                    width: holeSize,
+                    height: holeSize,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF090908),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
