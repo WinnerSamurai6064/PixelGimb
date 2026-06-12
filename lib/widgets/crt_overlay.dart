@@ -30,7 +30,7 @@ class _CrtPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final scanlinePaint = Paint()
-      ..color = Colors.black.withOpacity(0.55)
+      ..color = Colors.black.withValues(alpha: 0.55)
       ..strokeWidth = 1;
 
     for (double y = 0; y < size.height; y += 4) {
@@ -40,7 +40,7 @@ class _CrtPainter extends CustomPainter {
     final glowPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          Colors.white.withOpacity(0.08),
+          Colors.white.withValues(alpha: 0.08),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
