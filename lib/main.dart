@@ -29,11 +29,11 @@ class PixelGimbApp extends StatelessWidget {
         sliderTheme: SliderThemeData(
           trackHeight: 5,
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-          overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+          overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
           activeTrackColor: Colors.white,
-          inactiveTrackColor: Colors.white.withOpacity(0.28),
+          inactiveTrackColor: Colors.white.withOpacity(0.26),
           thumbColor: Colors.white,
-          overlayColor: Colors.white.withOpacity(0.12),
+          overlayColor: Colors.white.withOpacity(0.10),
         ),
       ),
       home: const PlayerScreen(),
@@ -123,54 +123,64 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final recordSize = width < 420 ? width * 0.72 : 320.0;
-
     return Scaffold(
-      body: Stack(
-        children: [
-          const _PlayerBackground(),
-          SafeArea(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-                  child: Column(
-                    children: [
-                      _OfficialHeader(
-                        track: _track,
-                        onSpotifyLogin: _loginSpotify,
-                        onToggleCrt: _toggleCrt,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final height = constraints.maxHeight;
+          final isShort = height < 760;
+          final recordSize = (width * 0.74).clamp(220.0, isShort ? 270.0 : 330.0);
+
+          return Stack(
+            children: [
+              const _PlayerBackground(),
+              SafeArea(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(18, isShort ? 10 : 18, 18, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _OfficialHeader(
+                            track: _track,
+                            onSpotifyLogin: _loginSpotify,
+                            onToggleCrt: _toggleCrt,
+                          ),
+                          SizedBox(height: isShort ? 10 : 16),
+                          _SeekBar(
+                            value: _progress,
+                            onChanged: (value) => setState(() => _progress = value),
+                          ),
+                          SizedBox(height: isShort ? 10 : 18),
+                          Expanded(
+                            child: Center(
+                              child: SpinningRecord(
+                                albumArtUrl: _track.albumArtUrl,
+                                isPlaying: _isPlaying,
+                                isTransitioning: _isTransitioning,
+                                size: recordSize,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: isShort ? 8 : 14),
+                          _OfficialControls(
+                            isPlaying: _isPlaying,
+                            onPrevious: _previousTrack,
+                            onPlayPause: _togglePlay,
+                            onNext: _nextTrack,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 18),
-                      _SeekBar(
-                        value: _progress,
-                        onChanged: (value) => setState(() => _progress = value),
-                      ),
-                      const Spacer(),
-                      SpinningRecord(
-                        albumArtUrl: _track.albumArtUrl,
-                        isPlaying: _isPlaying,
-                        isTransitioning: _isTransitioning,
-                        size: recordSize,
-                      ),
-                      const Spacer(),
-                      _OfficialControls(
-                        isPlaying: _isPlaying,
-                        onPrevious: _previousTrack,
-                        onPlayPause: _togglePlay,
-                        onNext: _nextTrack,
-                      ),
-                      const SizedBox(height: 10),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          CrtOverlay(enabled: _crtEnabled, opacity: 0.10),
-        ],
+              CrtOverlay(enabled: _crtEnabled, opacity: 0.10),
+            ],
+          );
+        },
       ),
     );
   }
@@ -189,6 +199,10 @@ class _OfficialHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final titleSize = width < 390 ? 30.0 : 38.0;
+    final actionSize = width < 390 ? 48.0 : 58.0;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -200,9 +214,9 @@ class _OfficialHeader extends StatelessWidget {
                 track.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 32,
+                  fontSize: titleSize,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.2,
                 ),
@@ -214,7 +228,7 @@ class _OfficialHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.62),
-                  fontSize: 18,
+                  fontSize: width < 390 ? 16 : 20,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.2,
                 ),
@@ -222,10 +236,10 @@ class _OfficialHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 12),
-        _SmallAssetButton(assetKey: 'spotify', tooltip: 'Login with Spotify', onTap: onSpotifyLogin),
         const SizedBox(width: 10),
-        _SmallAssetButton(assetKey: 'sliders', tooltip: 'Toggle CRT', onTap: onToggleCrt),
+        _SmallAssetButton(assetKey: 'spotify', size: actionSize, tooltip: 'Login with Spotify', onTap: onSpotifyLogin),
+        const SizedBox(width: 8),
+        _SmallAssetButton(assetKey: 'sliders', size: actionSize, tooltip: 'Toggle CRT', onTap: onToggleCrt),
       ],
     );
   }
@@ -233,11 +247,13 @@ class _OfficialHeader extends StatelessWidget {
 
 class _SmallAssetButton extends StatelessWidget {
   final String assetKey;
+  final double size;
   final String tooltip;
   final VoidCallback onTap;
 
   const _SmallAssetButton({
     required this.assetKey,
+    required this.size,
     required this.tooltip,
     required this.onTap,
   });
@@ -249,8 +265,8 @@ class _SmallAssetButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: SizedBox(
-          width: 58,
-          height: 58,
+          width: size,
+          height: size,
           child: PixelAssetImage(PixelAssets.icon(assetKey)),
         ),
       ),
@@ -322,19 +338,32 @@ class _OfficialControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        PixelIconButton(assetKey: 'shuffle', onPressed: () {}, size: 62),
-        PixelIconButton(assetKey: 'previous', onPressed: onPrevious, size: 72),
-        PixelIconButton(
-          assetKey: isPlaying ? 'pause' : 'play',
-          onPressed: onPlayPause,
-          size: 106,
+    final width = MediaQuery.sizeOf(context).width;
+    final side = width < 390 ? 52.0 : 62.0;
+    final mid = width < 390 ? 58.0 : 68.0;
+    final play = width < 390 ? 80.0 : 92.0;
+
+    return ClipRect(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: SizedBox(
+          width: 390,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              PixelIconButton(assetKey: 'shuffle', onPressed: () {}, size: side),
+              PixelIconButton(assetKey: 'previous', onPressed: onPrevious, size: mid),
+              PixelIconButton(
+                assetKey: isPlaying ? 'pause' : 'play',
+                onPressed: onPlayPause,
+                size: play,
+              ),
+              PixelIconButton(assetKey: 'next', onPressed: onNext, size: mid),
+              PixelIconButton(assetKey: 'repeat', onPressed: () {}, size: side),
+            ],
+          ),
         ),
-        PixelIconButton(assetKey: 'next', onPressed: onNext, size: 72),
-        PixelIconButton(assetKey: 'repeat', onPressed: () {}, size: 62),
-      ],
+      ),
     );
   }
 }
